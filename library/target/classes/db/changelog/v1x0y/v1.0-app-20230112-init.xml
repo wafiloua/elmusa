@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd"
+        logicalFilePath="">
+    <property name="now" value="sysdate" dbms="oracle"/>
+    <property name="now" value="now()" dbms="postgresql"/>
+    <changeSet id="app202301120936" author="Wafiloua">
+        <createTable tableName="users" schemaName="app">
+            <column name="id" type="bigint" />
+            <column name="username_or_email" type="varchar(128)">
+                <constraints nullable="false" />
+            </column>
+            <column name="password" type="varchar(300)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="enabled" type="boolean" defaultValueBoolean="false" />
+            <column name="nom" type="varchar(255)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="prenom" type="varchar(255)" />
+        </createTable>
+        <createTable tableName="roles" schemaName="app">
+            <column name="name" type="varchar(128)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="enabled" type="boolean" defaultValueBoolean="true" />
+        </createTable>
+        <createTable tableName="users_roles" schemaName="app">
+            <column name="id_user" type="bigint" >
+                <constraints nullable="false" />
+            </column>
+            <column name="id_role" type="varchar(128)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="attr_read" type="boolean" defaultValueBoolean="true" />
+            <column name="attr_create" type="boolean" defaultValueBoolean="true" />
+            <column name="attr_update" type="boolean" defaultValueBoolean="true" />
+            <column name="attr_delete" type="boolean" defaultValueBoolean="true" />
+        </createTable>
+
+        <addPrimaryKey tableName="users" schemaName="app" columnNames="id" constraintName="pk_users" />
+        <addPrimaryKey columnNames="name" schemaName="app" tableName="roles" constraintName="pk_roles" />
+        <addPrimaryKey tableName="users_roles" schemaName="app" columnNames="id_user,id_role"
+                       constraintName="pk_users_roles" />
+
+        <addForeignKeyConstraint baseTableSchemaName="app" baseTableName="users_roles" baseColumnNames="id_user"
+                                 constraintName="fk_users_roles"
+                                 referencedTableName="users" referencedTableSchemaName="app"
+                                 referencedColumnNames="id" onDelete="CASCADE" />
+        <addForeignKeyConstraint baseTableSchemaName="app" baseTableName="users_roles" baseColumnNames="id_role"
+                                 constraintName="fk_role_users_roles"
+                                 referencedTableName="roles" referencedTableSchemaName="app"
+                                 referencedColumnNames="name" onDelete="CASCADE"/>
+
+    </changeSet>
+    <changeSet id="app202301121007" author="Wafiloua">
+        <createTable tableName="address" schemaName="app">
+            <column name="id" type="bigint" />
+            <column name="emplacement" type="clob">
+                <constraints nullable="false" />
+            </column>
+            <column name="ville" type="varchar(128)">
+                <constraints nullable="false" />
+            </column>
+            <column name="pays" type="varchar(128)" />
+            <column name="telephone" type="varchar(255)" />
+            <column name="mail" type="varchar(128)" />
+            <column name="coordonnees_gps" type="clob">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="address" columnNames="id" schemaName="app" constraintName="pk_address" />
+
+        <addColumn tableName="users" schemaName="app">
+            <column name="address_id" type="bigint" />
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="users" baseTableSchemaName="app" baseColumnNames="address_id"
+                                 constraintName="fk_users_address_id"
+                                 referencedTableName="address"
+                                 referencedColumnNames="id" referencedTableSchemaName="app" />
+
+    </changeSet>
+</databaseChangeLog>
